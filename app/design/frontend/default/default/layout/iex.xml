@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <default>
+    </default>
+    <iex_index_index>
+        <reference name="content">
+            <block type="iex/iex" name="iex" template="iex/iex.phtml" />
+        </reference>
+    </iex_index_index>
+</layout> 
