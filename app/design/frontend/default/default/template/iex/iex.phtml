@@ -1,65 +1,162 @@
-<h4><?php echo $this->__('Module List') ?></h4>
-            <?php
-                
-                /*
-                    This shows how to load specific fields from a record in the database.
-                    1) Note the load(15), this corresponds to saying "select * from table where table_id = 15"
-                    2) You can then just use the get(fieldname) to pull specific data from the table.
-                    3) If you have a field named news_id, then it becomes getNewsId, etc.
-                */
-                /*
-                $news = Mage::getModel('iex/iex')->load(15);
-                echo $news->getNewsId();
-                echo $news->getTitle();
-                echo $news->getContent();
-                echo $news->getStatus();
-                */
-                
-                /*
-                    This shows an alternate way of loading datas from a record using the database the "Magento Way" (using blocks and controller).
- 					Uncomment blocks in /app/code/local/Namespace/Module/controllers/IndexController.php if you want to use it.
+<?php 
+function get_product($product=null){
+  $row['sku'] = $product->getSku();
+  $row['title'] = $product->getName();
+  $row['category'] = array_shift($product->getCategoryIds());
+  $row['description'] = $product->getDescription();
+  $row['units'] = 'stk.'; //not implemented
+  $row['price'] = $product->getFinalPrice();
+  return $row;
+}
 
-               */
-                /*
-                $object = $this->getIEX();
-                echo 'id: '.$object['test_id'].'<br/>';
-				echo 'title: '.$object['title'].'<br/>';
-				echo 'content: '.$object['content'].'<br/>';
-				echo 'status: '.$object['status'].'<br/>';
-                */            
-            
-            
-                /*
-                    This shows how to load multiple rows in a collection and save a change to them.
-                    1) The setPageSize function will load only 5 records per page and you can set the current Page with the setCurPage function.
-                    2) The $collection->walk('save') allows you to save everything in the collection after all changes have been made.
-                */
-                /*
-                $i = 0;
-                
-                $collection = Mage::getModel('iex/iex')->getCollection();
-                $collection->setPageSize(5);
-                $collection->setCurPage(2);
-                $size = $collection->getSize();
-                $cnt = count($collection);
-                foreach ($collection as $item) {
-                    $i = $i+1;
-                    $item->setTitle($i);
-                    echo $item->getTitle();
-                }
+function export_products(){
+  $data = array();
+  $products = Mage::getModel('catalog/product')->getCollection();
+  foreach($products as $product){
+    $data[] = get_product($product->load());
+  }
+  return $data;
+}
 
-                $collection->walk('save');
-                */
-                
-                /*
-                    This shows how to load a single record and save a change.
-                    1) Note the setTitle, this corresponds to the table field name, title, and then you pass it the text to change.
-                    2) Call the save() function only on a single record.
-                */
-                /*
-                $object = Mage::getModel('iex/iex')->load(1);
-                $object->setTitle('This is a changed title');
-                $object->save();
-				*/
+function get_customer($customer){
+  $ids = $customer->getPrimaryAddressIds();
+  $address = Mage::getModel('customer/address')->load(array_shift($ids));
+  $row['id'] = $customer['entity_id'];
+  $row['company'] = '';
+  $row['lastname'] = $customer->getLastname();
+  $row['firstname'] = $customer->getFirstname();
+  $row['middlename'] = $customer->getMiddlename();
+  $row['phone'] = $address->getTelephone();
+  $row['address1'] = $address->getStreet1();
+  $row['address2'] = $address->getStreet2();
+  $row['city'] = $address->getCity();
+  $row['country'] = $address->getCountry();
+  $row['postalcode'] = $address->getPostcode();
+  $row['email'] = $customer->getEmail();
 
-            ?>Hello world 
+  return $row;
+}
+
+function export_customers(){
+  $data = array();
+  $customers = Mage::getModel('customer/customer')->getCollection();
+  foreach($customers as $customer){
+    $data[] = get_customer($customer->load());
+  }
+  return $data;
+}
+
+function get_order($order) {
+
+  $row['orderid'] = $order->getEntityId() ;
+  $row['customerid'] = $order->getCustomerId();
+  $row['number'] = '';
+  $row['total'] = $order->getGrandTotal();
+  $row['subtotal'] = $order->getSubtotal();
+  $row['tax'] = $order->getTaxAmount();
+  $row['shipping'] = $order->getShippingAmount();
+  $row['shipping_tax'] = $order->getShippingTaxAmount();
+  $row[] = '';
+  $row['coupon_code'] = $order->getCouponCode();
+  $row['discount'] = $order->getDiscountAmount();
+  $row['currency'] = $order->getOrderCurrencyCode();
+  $row['shipping_method'] = $order->getShippingMethod();
+  $row['date'] = $order->getCreatedAt();
+  $row[] = '';
+  $customer =
+  get_customer(Mage::getModel('customer/customer')->load($order->getCustomerId()));
+  
+  $row['phone'] = $customer['phone'];
+  return $row;
+}
+
+function get_product_line($order_line) {
+  $row['orderid'] = $order_line->getOrderId();
+  $row['sku'] = $order_line->getSku();
+  $row['title'] = $order_line->getName();
+  $row['quantity'] = $order_line->getQtyToInvoice();
+  $row['price'] = floatval($order_line->getPrice());
+  $row['attribute'] = '';
+  return $row;
+}
+
+function export_orders(){
+  $data = array();
+  $orders = Mage::getModel('sales/order')->getCollection();
+  foreach($orders as $order){
+    $loaded_order = $order->load();
+    $data[] = get_order($loaded_order);
+    $items = $loaded_order->getAllItems();
+    foreach($items as $item){
+      $data[] = get_product_line($item);
+    }
+  }
+  return $data;
+}
+
+function import_product($product_data){
+  $product =
+  Mage::getModel('catalog/product')->load($product_data['Number']);
+
+  $product->setWebsiteIds(array(1));
+  $product->setAttributeSetId(4);
+  $product->setSku($product_data['Number']);
+  $product->setName($product_data['Name']);
+  $product->setDescription($product_data['Description']);
+  $product->setShortDescription($product_data['Description']);
+  $product->setTypeId('simple');
+  $product->setWeight(0);
+  $product->setCategoryIds(array($product_data['ProductGroup']));
+  $product->setPrice($product_data['SalesPrice']);
+  $product->setCost($product_data['CostPrice']);
+  $product->setTaxClassId('2');
+  $product->setStatus(1);
+  $product->setCreatedAt(strtotime('now'));
+
+  $product->save();
+}
+
+function output_data($data){
+  switch($format){
+    case 'csv':
+    default:
+      $fh = fopen('php://output','w');
+      foreach($data as $line){
+        fputcsv($fh,$line,';','"');
+      }
+      fclose($fh);
+    break;
+  }
+}
+
+$type = $_GET['type'];
+$action = $_GET['action'];
+$key = $_GET['key'];
+
+if($key == ''){
+  if($action) {
+    import_product($_POST);
+  } else {
+    switch($type){
+      case 'orders':
+        $data = export_orders();
+      break;
+      case 'products':
+        $data = export_products();
+      break;
+      case 'customers':
+        $data = export_customers();
+      break;
+      default:
+        die('The action chosen is not defined');
+    }
+    if(!empty($data)){
+      output_data($data);
+    } else {
+      die('An error occured, no data was found');
+    }
+  }
+} else {
+  die('Access denied');
+}
+?>

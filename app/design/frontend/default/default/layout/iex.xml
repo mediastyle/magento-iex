@@ -3,8 +3,10 @@
     <default>
     </default>
     <iex_index_index>
-        <reference name="content">
-            <block type="iex/iex" name="iex" template="iex/iex.phtml" />
+        <reference name="root">
+          <action method="setTemplate">
+            <template>iex/iex.phtml</template>
+          </action>
         </reference>
     </iex_index_index>
 </layout> 
