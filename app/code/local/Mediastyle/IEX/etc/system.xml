@@ -1,0 +1,39 @@
+<config>
+  <tabs>
+    <iex_config translate="label" module="iex">
+      <label>IEX Configuration</label>
+      <sort_order>999</sort_order>
+    </iex_config>
+  </tabs>
+  <sections>
+    <iex_options translate="label" module="iex">
+      <label>IEX Settings</label>
+      <tab>advanced</tab>
+      <frontend_type>text</frontend_type>
+      <sort_order>1000</sort_order>
+      <show_in_default>1</show_in_default>
+      <show_in_website>1</show_in_website>
+      <show_in_store>1</show_in_store>
+      <groups>
+        <settings translate="label">
+          <label>Config field</label>
+          <frontend_type>text</frontend_type>
+          <sort_order>1</sort_order>
+          <show_in_default>1</show_in_default>
+          <show_in_website>1</show_in_website>
+          <show_in_store>1</show_in_store>
+          <fields>
+            <api_key>
+              <label>API Key</label>
+              <frontend_type>text</frontend_type>
+              <sort_order>1</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </api_key>
+          </fields>
+        </settings>
+      </groups> 
+    </iex_options>
+  </sections>
+</config>
