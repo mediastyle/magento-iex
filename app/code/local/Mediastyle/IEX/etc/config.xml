@@ -80,6 +80,62 @@
                 </entities>
             </iex_mysql4>
         </models>
+        <events>
+          <catalog_product_save_before>
+            <observers>
+              <save_before>
+              <type>singleton</type>
+              <class>Mediastyle_IEX_Model_Observer</class>
+              <method>productTransfer</method>
+              </save_before>
+            </observers>
+          </catalog_product_save_before>
+          <catalog_product_delete_after>
+            <observers>
+              <event>
+              <type>singleton</type>
+              <class>Mediastyle_IEX_Model_Observer</class>
+              <method>productDelete</method>
+              </event>
+            </observers>
+          </catalog_product_delete_after>
+          <customer_save_after>
+            <observers>
+              <event>
+              <type>singleton</type>
+              <class>Mediastyle_IEX_Model_Observer</class>
+              <method>customerTransfer</method>
+              </event>
+            </observers>
+          </customer_save_after>
+          <customer_delete_after>
+            <observers>
+              <event>
+              <type>singleton</type>
+              <class>Mediastyle_IEX_Model_Observer</class>
+              <method>customerDelete</method>
+              </event>
+            </observers>
+          </customer_delete_after>
+          <sales_order_save_after>
+            <observers>
+              <event>
+              <type>singleton</type>
+              <class>Mediastyle_IEX_Model_Observer</class>
+              <method>orderTransfer</method>
+              </event>
+            </observers>
+          </sales_order_save_after>
+          <sales_order_delete_after>
+            <observers>
+              <event>
+              <type>singleton</type>
+              <class>Mediastyle_IEX_Model_Observer</class>
+              <method>orderDelete</method>
+              </event>
+            </observers>
+          </sales_order_delete_after>
+        </events>
         <resources>
             <iex_setup>
                 <setup>
