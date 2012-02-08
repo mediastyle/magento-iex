@@ -1,40 +1,57 @@
 <?php
+//Load the iex client api
 $ExternalLibPath=Mage::getModuleDir('', 'Mediastyle_IEX') . DS . 'iex-api' . DS .'iex_client_api.php';
 require_once ($ExternalLibPath);
 
 class Mediastyle_IEX_Model_Observer {
 
+  public function iexClient(){
+    $customer = Mage::getStoreConfig('iex_options/settings/customer_id');
+    $link = Mage::getStoreConfig('iex_options/settings/api_link');
+    $secret = Mage::getStoreConfig('iex_options/settings/api_secret');
+    
+    return new IexClientApi($customer,$link,$secret);
+  }
+
   public function productTransfer($observer){
+    $api = $this->iexClient();
     $event = $observer->getEvent();
     $product = $event->getProduct()->getData();
-    $this->iexQuery('product','transfer',$product);
+
+    $api->addTransfer('product',IEX_TRANSFER,$product);
+    $api->doTransfer();
   }
 
   public function productDelete($observer){
-    $action = 'delete';
+    $api = $this->iexClient();
     $event = $observer->getEvent();
     $product = $event->getProduct()->getData();
 
-    $this->iexQuery('product','delete',$product);
+    $api->addTransfer('product',IEX_DELETE,$product);
+    $api->doTransfer();
   }
 
   public function customerTransfer($observer){
-    $action = 'transfer';
+    $api = $this->iexClient();
     $event = $observer->getEvent();
     $customer = $event->getCustomer()->getData();
 
-    $this->iexQuery('customer','transfer',$customer);
+    $api->addTransfer('customer',IEX_TRANSFER,$customer);
+    $api->doTransfer();
   }
 
   public function customerDelete($observer){
-    $action = 'delete';
+    $api = $this->iexClient();
     $event = $observer->getEvent();
     $customer = $event->getCustomer()->getData();
-    $this->iexQuery('customer','delete',$customer);
+
+    $api->addTransfer('customer',IEX_DELETE,$customer);
+    $api->doTransfer();
   }
 
   public function orderTransfer($observer){
-    $action = 'transfer';
+    $api = $this->iexClient();
+
     $event = $observer->getEvent();
     $order = $event->getOrder();
     $row = array();
@@ -46,7 +63,6 @@ class Mediastyle_IEX_Model_Observer {
 
     $row['customer_id'] = $order->getCustomerId();
     $row['customer_name'] = $customer->getName();
-
     $row['number'] = '';
     $row['gross_amount'] = $order->getGrandTotal();
     $row['net_amount'] = $order->getSubtotal();
@@ -58,46 +74,29 @@ class Mediastyle_IEX_Model_Observer {
     $row['currency'] = $order->getOrderCurrencyCode();
     $row['shipping_method'] = $order->getShippingMethod();
     $row['create_date'] = $order->getCreatedAt();
-    
-    $this->iexQuery('customer','transfer',$row);
+    $api->addTransfer('order',IEX_TRANSFER,$row);
 
     $items = $order->getAllItems();
-    $orderlines = array();
     foreach($items as $item){
-      $tmp = array();
-      $tmp['order_id'] = $item->getOrderId();
-      $tmp['product_id'] = $item->getSku();
-      $tmp['title'] = $item->getName();
-      $tmp['quantity'] = $item->getQtyToInvoice();
-      $tmp['price'] = floatval($item->getPrice());
-      $tmp['attributes'] = '';
-//      $orderlines[] = $tmp;
-      $this->iexQuery('customer','transfer',$tmp);
+      $orderline = array();
+      $orderline['order_id'] = $item->getOrderId();
+      $orderline['product_id'] = $item->getSku();
+      $orderline['title'] = $item->getName();
+      $orderline['quantity'] = $item->getQtyToInvoice();
+      $orderline['price'] = floatval($item->getPrice());
+      $orderline['attributes'] = '';
+      $this->addTransfer('orderline',IEX_TRANSFER,$tmp);
     }
-/*    mail('ronni.lindsgaard@gmail.com','Order
-    data',print_r(array_shift($items)->getData(),true));*/
 
-    
+    $api->doTransfer();
   }
 
   public function orderDelete($observer){
-    $action = 'delete';
+    $api = $this->iexClient();
     $event = $observer->getEvent();
     $order = $event->getOrder()->getData();
-    $this->iexQuery('order','delete',$order);
+    
+    $api->addTransfer('order',IEX_DELETE,$order);
+    $api->doTransfer();
   }
-
-  public function iexQuery($entity,$action,$data){
-    $customer = Mage::getStoreConfig('iex_options/settings/customer_id');
-    $link = Mage::getStoreConfig('iex_options/settings/api_link');
-    $secret = Mage::getStoreConfig('iex_options/settings/api_secret');
-    $api = new IexClientApi($customer,$link,$secret);
-    $result = $api->query($entity,$action,$data);
-/*    mail('ronni.lindsgaard@gmail.com','An event ' .$action . ' was
-    triggered for ' . $entity . " with
-    data:",print_r($data,true) ."\n and the message\n " .
-    print_r($result,true) 
-    );*/
-  }
-
 }

@@ -34,37 +34,6 @@
 			</iex>
         </routers>
     </admin>
-    <adminhtml>
-		<acl>
-			<resources>
-				<all>
-					<title>Allow Everything</title>
-				</all>
-				<admin>
-					<children>
-            <system>
-              <children>
-                <config>
-                  <children>
-                    <iex_options>
-                      <title>Store Hello World Module Section</title>
-                    </iex_options>
-                  </children>
-                </config>
-              </children>
-            </system>
-					</children>
-				</admin>
-			</resources>
-		</acl>
-		<layout>
-			<updates>
-				<iex>
-					<file>iex.xml</file>
-				</iex>
-			</updates>
-		</layout>
-    </adminhtml>   
     <global>
         <models>
             <iex>
