@@ -50,16 +50,20 @@ class Mediastyle_IEX_Model_Observer {
   }
 
   public function orderTransfer($observer){
+
     $api = $this->iexClient();
 
     $event = $observer->getEvent();
     $order = $event->getOrder();
+    
+    if(Mage::registry('has_transfered_order_' . $order->getEntityId()))
+      return;
     $row = array();
 
     $row['id'] = $order->getEntityId() ;
 
-    $customer =
-    $this->getCustomer(Mage::getModel('customer/customer')->load($order->getCustomerId()));
+    $customer
+    =Mage::getModel('customer/customer')->load($order->getCustomerId());
 
     $row['customer_id'] = $order->getCustomerId();
     $row['customer_name'] = $customer->getName();
@@ -77,18 +81,22 @@ class Mediastyle_IEX_Model_Observer {
     $api->addTransfer('order',IEX_TRANSFER,$row);
 
     $items = $order->getAllItems();
-    foreach($items as $item){
+    $i = 0;
+    foreach($items as $k=>$item){
+      $i++;
       $orderline = array();
+      $orderline['id'] = $i;
       $orderline['order_id'] = $item->getOrderId();
       $orderline['product_id'] = $item->getSku();
       $orderline['title'] = $item->getName();
       $orderline['quantity'] = $item->getQtyToInvoice();
       $orderline['price'] = floatval($item->getPrice());
       $orderline['attributes'] = '';
-      $this->addTransfer('orderline',IEX_TRANSFER,$tmp);
+      $api->addTransfer('orderline',IEX_TRANSFER,$orderline);
     }
 
     $api->doTransfer();
+    Mage::register('has_transfered_order_' . $order->getEntityId(),true);
   }
 
   public function orderDelete($observer){
