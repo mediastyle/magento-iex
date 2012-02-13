@@ -1,5 +1,5 @@
 js/
-etc/
+/etc/
 downloader/
 cron.php
 errors/
