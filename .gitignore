@@ -20,6 +20,7 @@ app/code/community
 app/code/core/
 app/code/local/Mage/
 app/design
+app/etc/
 app/locale/
 cron.sh
 favicon.ico
