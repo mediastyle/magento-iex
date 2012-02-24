@@ -17,9 +17,10 @@ class Mediastyle_IEX_Model_Observer {
     $api = $this->iexClient();
     $event = $observer->getEvent();
     $product = $event->getProduct()->getData();
-
-    $api->addTransfer('product',IEX_TRANSFER,$product);
-    $api->doTransfer();
+    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+      $api->addTransfer('product',IEX_TRANSFER,$product);
+      $api->doTransfer();
+    }
   }
 
   public function productDelete($observer){
@@ -27,8 +28,10 @@ class Mediastyle_IEX_Model_Observer {
     $event = $observer->getEvent();
     $product = $event->getProduct()->getData();
 
-    $api->addTransfer('product',IEX_DELETE,$product);
-    $api->doTransfer();
+    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+      $api->addTransfer('product',IEX_DELETE,$product);
+      $api->doTransfer();
+    }
   }
 
   public function customerTransfer($observer){
@@ -36,8 +39,10 @@ class Mediastyle_IEX_Model_Observer {
     $event = $observer->getEvent();
     $customer = $event->getCustomer()->getData();
 
-    $api->addTransfer('customer',IEX_TRANSFER,$customer);
-    $api->doTransfer();
+    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+      $api->addTransfer('customer',IEX_TRANSFER,$customer);
+      $api->doTransfer();
+    }
   }
 
   public function customerDelete($observer){
@@ -45,8 +50,10 @@ class Mediastyle_IEX_Model_Observer {
     $event = $observer->getEvent();
     $customer = $event->getCustomer()->getData();
 
-    $api->addTransfer('customer',IEX_DELETE,$customer);
-    $api->doTransfer();
+    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+      $api->addTransfer('customer',IEX_DELETE,$customer);
+      $api->doTransfer();
+    }
   }
 
   public function orderTransfer($observer){
@@ -89,13 +96,15 @@ class Mediastyle_IEX_Model_Observer {
       $orderline['order_id'] = $item->getOrderId();
       $orderline['product_id'] = $item->getSku();
       $orderline['title'] = $item->getName();
-      $orderline['quantity'] = $item->getQtyToInvoice();
+      $orderline['quantity'] = $item->getQtyOrdered();
       $orderline['price'] = floatval($item->getPrice());
       $orderline['attributes'] = '';
       $api->addTransfer('orderline',IEX_TRANSFER,$orderline);
     }
 
-    $api->doTransfer();
+    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+      $api->doTransfer();
+    }
     Mage::register('has_transfered_order_' . $order->getEntityId(),true);
   }
 
@@ -104,7 +113,9 @@ class Mediastyle_IEX_Model_Observer {
     $event = $observer->getEvent();
     $order = $event->getOrder()->getData();
     
-    $api->addTransfer('order',IEX_DELETE,$order);
-    $api->doTransfer();
+    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+      $api->addTransfer('order',IEX_DELETE,$order);
+      $api->doTransfer();
+    }
   }
 }
