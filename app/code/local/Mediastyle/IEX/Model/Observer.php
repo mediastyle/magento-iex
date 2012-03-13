@@ -17,7 +17,8 @@ class Mediastyle_IEX_Model_Observer {
     $api = $this->iexClient();
     $event = $observer->getEvent();
     $product = $event->getProduct()->getData();
-    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+    if(Mage::getStoreConfig('iex_options/settings/synchronise') &&
+      $product['store_id'] == 1){
       $api->addTransfer('product',IEX_TRANSFER,$product);
       $api->doTransfer();
     }
@@ -38,9 +39,17 @@ class Mediastyle_IEX_Model_Observer {
     $api = $this->iexClient();
     $event = $observer->getEvent();
     $customer = $event->getCustomer()->getData();
-
+    $api->addTransfer('customer',IEX_TRANSFER,$customer);
+    $address = array();
+    if($customer['default_billing']){
+      $address =
+        Mage::getModel('customer/address')->load($customer['default_billing'])->getData();
+      $address['customer_id'] = $customer['entity_id'];
+      $address['id'] = $customer['entity_id'];
+        $api->addTransfer('address',IEX_TRANSFER,$address);
+    }
+    
     if(Mage::getStoreConfig('iex_options/settings/synchronise')){
-      $api->addTransfer('customer',IEX_TRANSFER,$customer);
       $api->doTransfer();
     }
   }
@@ -67,13 +76,18 @@ class Mediastyle_IEX_Model_Observer {
       return;
     $row = array();
 
-    $row['id'] = $order->getEntityId() ;
 
     $customer
-    =Mage::getModel('customer/customer')->load($order->getCustomerId());
+      =Mage::getModel('customer/customer')->load($order->getCustomerId())->getData();
+    $row = $customer;
+    if($customer['default_billing']){
+      $address =
+        Mage::getModel('customer/address')->load($customer['default_billing'])->getData();
 
+      $row = array_merge($row,$address);
+    }
+    $row['id'] = $order->getEntityId() ;
     $row['customer_id'] = $order->getCustomerId();
-    $row['customer_name'] = $customer->getName();
     $row['number'] = '';
     $row['gross_amount'] = $order->getGrandTotal();
     $row['net_amount'] = $order->getSubtotal();
