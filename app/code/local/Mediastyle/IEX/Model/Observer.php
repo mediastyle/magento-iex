@@ -17,7 +17,7 @@ class Mediastyle_IEX_Model_Observer {
     $api = $this->iexClient();
     $event = $observer->getEvent();
     $product = $event->getProduct()->getData();
-    if(Mage::getStoreConfig('iex_options/settings/synchronise') &&
+    if(Mage::getStoreConfig('iex_options/settings/synchronise_product') &&
       $product['store_id'] == 1){
       $api->addTransfer('product',IEX_TRANSFER,$product);
       $api->doTransfer();
@@ -29,7 +29,7 @@ class Mediastyle_IEX_Model_Observer {
     $event = $observer->getEvent();
     $product = $event->getProduct()->getData();
 
-    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+    if(Mage::getStoreConfig('iex_options/settings/synchronise_product')){
       $api->addTransfer('product',IEX_DELETE,$product);
       $api->doTransfer();
     }
@@ -49,7 +49,7 @@ class Mediastyle_IEX_Model_Observer {
         $api->addTransfer('address',IEX_TRANSFER,$address);
     }
     
-    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+    if(Mage::getStoreConfig('iex_options/settings/synchronise_customer')){
       $api->doTransfer();
     }
   }
@@ -59,7 +59,7 @@ class Mediastyle_IEX_Model_Observer {
     $event = $observer->getEvent();
     $customer = $event->getCustomer()->getData();
 
-    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+    if(Mage::getStoreConfig('iex_options/settings/synchronise_customer')){
       $api->addTransfer('customer',IEX_DELETE,$customer);
       $api->doTransfer();
     }
@@ -116,7 +116,7 @@ class Mediastyle_IEX_Model_Observer {
       $api->addTransfer('orderline',IEX_TRANSFER,$orderline);
     }
 
-    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+    if(Mage::getStoreConfig('iex_options/settings/synchronise_order')){
       $api->doTransfer();
     }
     Mage::register('has_transfered_order_' . $order->getEntityId(),true);
@@ -127,7 +127,7 @@ class Mediastyle_IEX_Model_Observer {
     $event = $observer->getEvent();
     $order = $event->getOrder()->getData();
     
-    if(Mage::getStoreConfig('iex_options/settings/synchronise')){
+    if(Mage::getStoreConfig('iex_options/settings/synchronise_order')){
       $api->addTransfer('order',IEX_DELETE,$order);
       $api->doTransfer();
     }

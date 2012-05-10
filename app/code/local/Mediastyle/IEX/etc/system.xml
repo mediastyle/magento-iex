@@ -47,14 +47,36 @@
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
             </api_secret>
-            <synchronise>
-              <label>Perform synchronisation</label>
+            <synchronise_product>
+              <label>Perform product synchronisation</label>
+              <comment>Send updates to IEX when a product is created or
+              modified</comment>
               <frontend_type>text</frontend_type>
               <sort_order>4</sort_order>
               <show_in_default>1</show_in_default>
               <show_in_website>1</show_in_website>
               <show_in_store>1</show_in_store>
-            </synchronise>
+            </synchronise_product>
+            <synchronise_customer>
+              <label>Perform customer synchronisation</label>
+              <comment>Send updates to IEX when a customer is created or
+              modified</comment>
+              <frontend_type>text</frontend_type>
+              <sort_order>5</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </synchronise_customer>
+            <synchronise_order>
+              <label>Perform order synchronisation</label>
+              <comment>Send updates to IEX when an order is created or
+              modified</comment>
+              <frontend_type>text</frontend_type>
+              <sort_order>6</sort_order>
+              <show_in_default>1</show_in_default>
+              <show_in_website>1</show_in_website>
+              <show_in_store>1</show_in_store>
+            </synchronise_order>
           </fields>
         </settings>
       </groups> 
